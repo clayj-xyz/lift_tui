@@ -1,0 +1,44 @@
+routine:
+  - day: Monday
+    targets:
+      - Chest
+      - Triceps
+    exercises:
+      - name: Bench Press
+        sets: 3x10
+      - name: Incline DB Press
+        sets: 3x12
+      - name: Tricep Dips
+        sets: 1x15
+  - day: Tuesday
+    targets:
+      - Back
+      - Biceps
+    exercises:
+      - name: Pull-ups
+        sets: 3
+      - name: Bent-over Rows
+        sets: 3x12
+      - name: Incline DB Curls
+        sets: 3x12
+  - day: Thursday
+    targets:
+      - Quadriceps
+      - Hamstrings
+    exercises:
+      - name: Squats
+        sets: 3x10
+      - name: Romanian Deadlifts
+        sets: 3x12
+  - day: Friday
+    targets:
+      - Shoulders
+      - Abs
+    exercises:
+      - name: Overhead Press
+        sets: 3x10
+      - name: Lateral Raises
+        sets: 3x12
+      - name: Ab Wheel Rollouts
+        sets: 3
+      
