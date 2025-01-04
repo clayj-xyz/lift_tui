@@ -6,7 +6,8 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	yaml "gopkg.in/yaml.v3"
+	"github.com/charmbracelet/lipgloss"
+	"gopkg.in/yaml.v3"
 )
 
 type Exercise struct {
@@ -14,20 +15,27 @@ type Exercise struct {
 	Sets string `yaml:"sets"`
 }
 
-type Routine struct {
+type Workout struct {
 	Day       string     `yaml:"day"`
 	Targets   []string   `yaml:"targets"`
 	Exercises []Exercise `yaml:"exercises"`
 }
 
 type Program struct {
-	Routine []Routine `yaml:"routine"`
+	Name     string    `yaml:"name"`
+	Workouts []Workout `yaml:"workouts"`
 }
 
 type model struct {
-	routines []Routine
-	cursor   int
+	Program Program
+	cursor  int
 }
+
+var (
+	titleStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF69B4"))
+	cursorStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
+	workoutStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#1E90FF"))
+)
 
 func initialModel() model {
 	// Read and parse the YAML file
@@ -43,7 +51,7 @@ func initialModel() model {
 	}
 
 	return model{
-		routines: program.Routine,
+		Program: program,
 	}
 }
 
@@ -62,7 +70,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(m.routines)-1 {
+			if m.cursor < len(m.Program.Workouts)-1 {
 				m.cursor++
 			}
 		}
@@ -71,16 +79,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	s := "Exercise Routines:\n\n"
+	s := titleStyle.Render(m.Program.Name+":") + "\n"
 
-	for i, routine := range m.routines {
+	for i, workout := range m.Program.Workouts {
 		cursor := " " // no cursor
 		if m.cursor == i {
 			cursor = ">" // cursor
 		}
-		s += fmt.Sprintf("%s %s\n", cursor, routine.Day)
+		s += fmt.Sprintf("%s %s\n", cursorStyle.Render(cursor), workoutStyle.Render(workout.Day))
 		if m.cursor == i {
-			for _, exercise := range routine.Exercises {
+			for _, exercise := range workout.Exercises {
 				s += fmt.Sprintf("  - %s: %s\n", exercise.Name, exercise.Sets)
 			}
 		}

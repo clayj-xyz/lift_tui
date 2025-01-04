@@ -1,4 +1,5 @@
-routine:
+name: Bro Split
+workouts:
   - day: Monday
     targets:
       - Chest
