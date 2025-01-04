@@ -37,9 +37,9 @@ var (
 	workoutStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#1E90FF"))
 )
 
-func initialModel() model {
+func initialModel(filePath string) model {
 	// Read and parse the YAML file
-	data, err := os.ReadFile("program.yaml")
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -99,7 +99,13 @@ func (m model) View() string {
 }
 
 func main() {
-	p := tea.NewProgram(initialModel())
+	if len(os.Args) < 2 {
+		log.Fatalf("error: no program file provided")
+	}
+	filePath := os.Args[1]
+	m := initialModel(filePath)
+
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
