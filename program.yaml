@@ -1,9 +1,7 @@
 name: Bro Split
+start_day: Monday
 workouts:
-  - day: Monday
-    targets:
-      - Chest
-      - Triceps
+  - name: Chest & Tris
     exercises:
       - name: Bench Press
         sets: 3x10
@@ -11,10 +9,7 @@ workouts:
         sets: 3x12
       - name: Tricep Dips
         sets: 1x15
-  - day: Tuesday
-    targets:
-      - Back
-      - Biceps
+  - name: Back & Bis
     exercises:
       - name: Pull-ups
         sets: 3
@@ -22,19 +17,14 @@ workouts:
         sets: 3x12
       - name: Incline DB Curls
         sets: 3x12
-  - day: Thursday
-    targets:
-      - Quadriceps
-      - Hamstrings
+  - name: Rest
+  - name: Legs
     exercises:
       - name: Squats
         sets: 3x10
       - name: Romanian Deadlifts
         sets: 3x12
-  - day: Friday
-    targets:
-      - Shoulders
-      - Abs
+  - name: Shoulders & Abs
     exercises:
       - name: Overhead Press
         sets: 3x10
@@ -42,4 +32,5 @@ workouts:
         sets: 3x12
       - name: Ab Wheel Rollouts
         sets: 3
-      
+  - name: Rest
+  - name: Rest

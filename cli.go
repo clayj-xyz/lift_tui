@@ -16,13 +16,14 @@ type Exercise struct {
 }
 
 type Workout struct {
-	Day       string     `yaml:"day"`
-	Targets   []string   `yaml:"targets"`
+	Name      string     `yaml:"name"`
+	Weekday   string     `yaml:"weekday"`
 	Exercises []Exercise `yaml:"exercises"`
 }
 
 type Program struct {
 	Name     string    `yaml:"name"`
+	StartDay string    `yaml:"start_day"`
 	Workouts []Workout `yaml:"workouts"`
 }
 
@@ -35,6 +36,7 @@ var (
 	titleStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF69B4"))
 	cursorStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
 	workoutStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#1E90FF"))
+	daysOfWeek   = []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 )
 
 func initialModel(filePath string) model {
@@ -48,6 +50,18 @@ func initialModel(filePath string) model {
 	err = yaml.Unmarshal(data, &program)
 	if err != nil {
 		log.Fatalf("error: %v", err)
+	}
+
+	var startDayIndex int
+	for i, day := range daysOfWeek {
+		if day == program.StartDay {
+			startDayIndex = i
+			break
+		}
+	}
+	for i, workout := range program.Workouts {
+		workout.Weekday = daysOfWeek[(startDayIndex+i)%7]
+		program.Workouts[i] = workout
 	}
 
 	return model{
@@ -86,7 +100,12 @@ func (m model) View() string {
 		if m.cursor == i {
 			cursor = ">" // cursor
 		}
-		s += fmt.Sprintf("%s %s\n", cursorStyle.Render(cursor), workoutStyle.Render(workout.Day))
+		s += fmt.Sprintf(
+			"%s %s - %s\n",
+			cursorStyle.Render(cursor),
+			workoutStyle.Render(workout.Weekday),
+			workoutStyle.Render(workout.Name),
+		)
 		if m.cursor == i {
 			for _, exercise := range workout.Exercises {
 				s += fmt.Sprintf("  - %s: %s\n", exercise.Name, exercise.Sets)
