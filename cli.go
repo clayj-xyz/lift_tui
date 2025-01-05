@@ -1,132 +1,43 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gopkg.in/yaml.v3"
 )
-
-type Exercise struct {
-	Name string `yaml:"name"`
-	Sets string `yaml:"sets"`
-}
-
-type Workout struct {
-	Name      string     `yaml:"name"`
-	Weekday   string     `yaml:"weekday"`
-	Exercises []Exercise `yaml:"exercises"`
-}
-
-type Program struct {
-	Name     string    `yaml:"name"`
-	StartDay string    `yaml:"start_day"`
-	Workouts []Workout `yaml:"workouts"`
-}
-
-type model struct {
-	Program Program
-	cursor  int
-}
 
 var (
-	titleStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF69B4"))
-	cursorStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
-	workoutStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#1E90FF"))
-	daysOfWeek   = []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+	titleStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF69B4"))
+	cursorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
+	workoutStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#1E90FF"))
+	exerciseStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD700"))
+	daysOfWeek    = []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 )
 
-func initialModel(filePath string) model {
-	// Read and parse the YAML file
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	var program Program
-	err = yaml.Unmarshal(data, &program)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	var startDayIndex int
-	for i, day := range daysOfWeek {
-		if day == program.StartDay {
-			startDayIndex = i
-			break
-		}
-	}
-	for i, workout := range program.Workouts {
-		workout.Weekday = daysOfWeek[(startDayIndex+i)%7]
-		program.Workouts[i] = workout
-	}
-
-	return model{
-		Program: program,
-	}
-}
-
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "q", "esc":
-			return m, tea.Quit
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down", "j":
-			if m.cursor < len(m.Program.Workouts)-1 {
-				m.cursor++
-			}
-		}
-	}
-	return m, nil
-}
-
-func (m model) View() string {
-	s := titleStyle.Render(m.Program.Name+":") + "\n"
-
-	for i, workout := range m.Program.Workouts {
-		cursor := " " // no cursor
-		if m.cursor == i {
-			cursor = ">" // cursor
-		}
-		s += fmt.Sprintf(
-			"%s %s - %s\n",
-			cursorStyle.Render(cursor),
-			workoutStyle.Render(workout.Weekday),
-			workoutStyle.Render(workout.Name),
-		)
-		if m.cursor == i {
-			for _, exercise := range workout.Exercises {
-				s += fmt.Sprintf("  - %s: %s\n", exercise.Name, exercise.Sets)
-			}
-		}
-	}
-
-	s += "\nPress q to quit.\n"
-	return s
-}
-
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatalf("error: no program file provided")
-	}
-	filePath := os.Args[1]
-	m := initialModel(filePath)
+	viewProgram := flag.String("view-program", "", "View the program")
+	viewSession := flag.String("view-session", "", "View the session")
+	flag.Parse()
 
-	p := tea.NewProgram(m)
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
+	if *viewProgram != "" {
+		m := createProgramModel(*viewProgram)
+		p := tea.NewProgram(m)
+		if _, err := p.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else if *viewSession != "" {
+		m := createSessionModel(*viewSession)
+		p := tea.NewProgram(m)
+		if _, err := p.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("Please specify either --view-program or --view-session")
 		os.Exit(1)
 	}
 }

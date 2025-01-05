@@ -1,1 +1,2 @@
 # lift_tui
+This is a program for viewing and tracking weightlifting programs. Data is stored as human-readable yaml files in ~/.local/share/lift_tui. There are 'program' files which contain a specification of a weightlifting program and 'session' files which contain logs of what weight was lifted during a session.
